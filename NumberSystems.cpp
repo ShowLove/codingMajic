@@ -42,7 +42,6 @@ Ehex	=	14dec	=	16oct	1	1	1	0
 Fhex	=	15dec	=	17oct	1	1	1	1
 */
 
-class HelperFunctions;
 
 class NumberSystems {
 public:
