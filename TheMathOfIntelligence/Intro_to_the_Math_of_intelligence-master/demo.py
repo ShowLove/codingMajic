@@ -21,15 +21,28 @@ Our error value is a measure of closeness
 y̅ = m*x.i + b)
 totalError += (y - (m * x + b)) ** 2
 
+We take the partial derivative of the error function to get the gradient
 Partial derivative with respect to b and m (to perform gradient descent)
 (∂/∂m) = (2/N)*∑.(i=1,N)[(-x.i)(y.i - y̅)]
 (∂/∂b) = (2/N)*∑.(i=1,N)[(-1)(y.i - y̅)]
+
+To solve for the gradient, we iterate through our data points using our 
+new m and b values and compute the partial derivatives. This new gradient tells 
+us the slope of our cost function at our current position (current parameter values) 
+and the direction we should move to update our parameters. The size of our update is 
+controlled by the learning rate.
 """
 
 from numpy import *
 
 # y = mx + b
 # m is slope, b is y-intercept
+"""
+We want to see how far away the the y value of the actual data is 
+from the equivalent y value of of the line we are testing
+@param b, m : The b and m value of the line we are testing for error.  
+@param points : the actual points representing real data
+"""
 def compute_error_for_line_given_points(b, m, points):
     totalError = 0
     for i in range(0, len(points)):
@@ -37,23 +50,55 @@ def compute_error_for_line_given_points(b, m, points):
         y = points[i, 1]
         totalError += (y - (m * x + b)) ** 2
     return totalError / float(len(points))
-
+"""
+Calculates the partial derivative of the cost/error function with respect to 
+b and m of the equation y=mx+b.
+"""
 def step_gradient(b_current, m_current, points, learningRate):
     b_gradient = 0
     m_gradient = 0
     N = float(len(points))
     for i in range(0, len(points)):
+        # this represents myTODO
         x = points[i, 0]
         y = points[i, 1]
+
+        """
+        Gradient =  (Change in Y)/(Change in X) = slope  
+        We're looking at a 3d graph of m,b with error as a 'z' dimesion.
+        i.e partial deriv w/respec to 'm' : slices the 3d graph into a 2d graph
+        with m as x and error as y ('realy it's z'). The aswer can be seen as the slope at that point.
+        ie slope of -2; down 2 and right one. 2 up two and right one.
+        #(∂/∂m) = (2/N)*∑.(i=1,N)[(-x.i)(y.i - y̅)]
+        #(∂/∂b) = (2/N)*∑.(i=1,N)[(-1)(y.i - y̅)]
+        """
         b_gradient += -(2/N) * (y - ((m_current * x) + b_current))
         m_gradient += -(2/N) * x * (y - ((m_current * x) + b_current))
+
+    """
+    # new_b,new_m will be fed back into this function, each iteration is a step closer
+    # to the line with least error.
+    Learning rate: The size of these steps is called the learning rate. With a high learning rate we 
+    can cover more ground each step, but we risk overshooting the lowest point since the 
+    slope of data is constantly changing. With a very low learning rate, we can 
+    confidently move in the direction of the negative gradient since we are recalculating 
+    it so frequently. A low learning rate is more precise, but calculating the gradient is 
+    time-consuming, so it will take us a very long time to get to the bottom.
+    """
+    # We subtract because the derivatives point in direction of steepest ascent
+    # The right side of this equation will always be negative because we are decending (slope)
     new_b = b_current - (learningRate * b_gradient)
     new_m = m_current - (learningRate * m_gradient)
     return [new_b, new_m]
 
+"""
+@param starting_b, starting_m : starting line y=mx+b, points : points holding actual data
+@param learning_rate : 
+"""
 def gradient_descent_runner(points, starting_b, starting_m, learning_rate, num_iterations):
     b = starting_b
     m = starting_m
+    # At it's final iteration we will have two values b,m of a line with the least error
     for i in range(num_iterations):
         b, m = step_gradient(b, m, array(points), learning_rate)
     return [b, m]
